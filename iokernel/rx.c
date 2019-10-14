@@ -106,7 +106,7 @@ static void rx_one_pkt(struct rte_mbuf *buf)
 
 		/* lookup runtime by MAC in hash table */
 		ret = rte_hash_lookup_data(dp.mac_to_proc,
-				&ptr_dst_addr->addr_bytes[0], &data);
+				&ptr_dst_addr->addr_bytes, &data);
 		if (unlikely(ret < 0)) {
 			STAT_INC(RX_UNREGISTERED_MAC, 1);
 			log_debug_ratelimited("rx: received packet for unregistered MAC");
