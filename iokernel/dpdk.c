@@ -93,7 +93,7 @@ static inline int dpdk_port_init(uint8_t port, struct rte_mempool *mbuf_pool)
 	if (retval != 0)
 		return retval;
 
-	rte_eth_dev_info_get(0, &dev_info);
+	rte_eth_dev_info_get(1, &dev_info);
 	rxconf = &dev_info.default_rxconf;
 	rxconf->rx_free_thresh = 64;
 
@@ -185,7 +185,7 @@ int dpdk_init()
 	}
 
 	/* check that there is a port to send/receive on */
-	if (!rte_eth_dev_is_valid_port(0)) {
+	if (!rte_eth_dev_is_valid_port(1)) {
 		log_err("dpdk: no available ports");
 		return -1;
 	}
@@ -202,7 +202,7 @@ int dpdk_init()
 int dpdk_late_init()
 {
 	/* initialize port */
-	dp.port = 0;
+	dp.port = 1;
 	if (dpdk_port_init(dp.port, dp.rx_mbuf_pool) != 0) {
 		log_err("dpdk: cannot init port %"PRIu8 "\n", dp.port);
 		return -1;

@@ -84,7 +84,7 @@ void dataplane_loop()
 			rte_lcore_id());
 
 	/* run until quit or killed */
-	for (;;) {
+	for (;;) {		
 		work_done = false;
 
 		/* handle a burst of ingress packets */
