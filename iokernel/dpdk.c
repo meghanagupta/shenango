@@ -57,7 +57,8 @@ static const struct rte_eth_conf port_conf_default = {
 	.rx_adv_conf = {
 		.rss_conf = {
 			.rss_key = NULL,
-			.rss_hf = ETH_RSS_TCP | ETH_RSS_UDP,
+			// .rss_hf = ETH_RSS_TCP | ETH_RSS_UDP,
+			.rss_hf = ETH_RSS_L2_PAYLOAD,
 		},
 	},
 	.txmode = {
@@ -81,19 +82,22 @@ static inline int dpdk_port_init(uint8_t port, struct rte_mempool *mbuf_pool)
 	struct rte_eth_txconf *txconf;
 	struct rte_eth_rxconf *rxconf;
 
-	if (!rte_eth_dev_is_valid_port(port))
+	if (!rte_eth_dev_is_valid_port(port)) {
 		return -1;
+	}
 
 	/* Configure the Ethernet device. */
 	retval = rte_eth_dev_configure(port, rx_rings, tx_rings, &port_conf);
-	if (retval != 0)
+	if (retval != 0) {
 		return retval;
+	}
 
 	retval = rte_eth_dev_adjust_nb_rx_tx_desc(port, &nb_rxd, &nb_txd);
-	if (retval != 0)
+	if (retval != 0) {
 		return retval;
+	}	
 
-	rte_eth_dev_info_get(1, &dev_info);
+	rte_eth_dev_info_get(port, &dev_info);
 	rxconf = &dev_info.default_rxconf;
 	rxconf->rx_free_thresh = 64;
 
@@ -101,8 +105,9 @@ static inline int dpdk_port_init(uint8_t port, struct rte_mempool *mbuf_pool)
 	for (q = 0; q < rx_rings; q++) {
 		retval = rte_eth_rx_queue_setup(port, q, nb_rxd,
 				rte_eth_dev_socket_id(port), rxconf, mbuf_pool);
-		if (retval < 0)
+		if (retval < 0) {
 			return retval;
+		}
 	}
 
 	/* Enable TX offloading */
@@ -114,14 +119,16 @@ static inline int dpdk_port_init(uint8_t port, struct rte_mempool *mbuf_pool)
 	for (q = 0; q < tx_rings; q++) {
 		retval = rte_eth_tx_queue_setup(port, q, nb_txd,
 				rte_eth_dev_socket_id(port), txconf);
-		if (retval < 0)
+		if (retval < 0) {
 			return retval;
+		}
 	}
 
 	/* Start the Ethernet port. */
 	retval = rte_eth_dev_start(port);
-	if (retval < 0)
+	if (retval < 0) {
 		return retval;
+	}
 
 	/* Display the port MAC address. */
 	struct ether_addr addr;
@@ -166,7 +173,7 @@ void dpdk_print_eth_stats()
  */
 int dpdk_init()
 {
-	char *argv[4];
+	char *argv[5];
 	char buf[10];
 
 	/* init args */
@@ -176,17 +183,20 @@ int dpdk_init()
 	sprintf(buf, "%d", core_assign.dp_core);
 	argv[2] = buf;
 	argv[3] = "--socket-mem=128";
+	argv[4] = "--huge-unlink";
 
 	/* initialize the Environment Abstraction Layer (EAL) */
 	int ret = rte_eal_init(sizeof(argv) / sizeof(argv[0]), argv);
 	if (ret < 0) {
 		log_err("dpdk: error with EAL initialization");
+		rte_eal_cleanup();
 		return -1;
 	}
 
 	/* check that there is a port to send/receive on */
-	if (!rte_eth_dev_is_valid_port(1)) {
+	if (!rte_eth_dev_is_valid_port(dp.port)) {
 		log_err("dpdk: no available ports");
+		rte_eal_cleanup();
 		return -1;
 	}
 
@@ -202,9 +212,10 @@ int dpdk_init()
 int dpdk_late_init()
 {
 	/* initialize port */
-	dp.port = 1;
+	dp.port = 0;
 	if (dpdk_port_init(dp.port, dp.rx_mbuf_pool) != 0) {
 		log_err("dpdk: cannot init port %"PRIu8 "\n", dp.port);
+		rte_eal_cleanup();
 		return -1;
 	}
 

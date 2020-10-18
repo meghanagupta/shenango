@@ -37,7 +37,7 @@ static int thread_alloc_perthread(void)
 	if (!len)
 		return 0;
 
-	addr = mem_map_anom(NULL, len, PGSIZE_4KB, thread_numa_node);
+	addr = mem_map_anom(NULL, len, PGSIZE_2MB, thread_numa_node);
 	if (addr == MAP_FAILED)
 		return -ENOMEM;
 

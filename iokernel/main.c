@@ -129,8 +129,10 @@ int main(int argc, char *argv[])
 
 	ret = run_init_handlers("iokernel", iok_init_handlers,
 			ARRAY_SIZE(iok_init_handlers));
-	if (ret)
+	if (ret) {
 		return ret;
+		rte_eal_cleanup();
+	}
 
 	dataplane_loop();
 	return 0;

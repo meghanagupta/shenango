@@ -39,7 +39,8 @@ base_src = $(wildcard base/*.c)
 base_obj = $(base_src:.c=.o)
 
 #libnet.a - a packet/networking utility library
-net_src = $(wildcard net/*.c) $(wildcard net/ixgbe/*.c)
+#net_src = $(wildcard net/*.c) $(wildcard net/ixgbe/*.c)
+net_src = $(wildcard net/*.c) $(wildcard net/i40e/*.c)
 net_obj = $(net_src:.c=.o)
 
 # iokernel - a soft-NIC service
@@ -60,7 +61,8 @@ test_targets = $(basename $(test_src))
 # dpdk libs
 DPDK_LIBS= -L$(DPDK_PATH)/build/lib
 DPDK_LIBS += -Wl,-whole-archive -lrte_pmd_e1000 -Wl,-no-whole-archive
-DPDK_LIBS += -Wl,-whole-archive -lrte_pmd_ixgbe -Wl,-no-whole-archive
+#DPDK_LIBS += -Wl,-whole-archive -lrte_pmd_ixgbe -Wl,-no-whole-archive
+DPDK_LIBS += -Wl,-whole-archive -lrte_pmd_i40e -Wl,-no-whole-archive
 DPDK_LIBS += -Wl,-whole-archive -lrte_mempool_ring -Wl,-no-whole-archive
 DPDK_LIBS += -ldpdk
 DPDK_LIBS += -lrte_eal

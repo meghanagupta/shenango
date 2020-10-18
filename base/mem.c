@@ -12,6 +12,8 @@
 #include <sys/mman.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <errno.h>
+#include <string.h>
 
 #include <base/stddef.h>
 #include <base/mem.h>
@@ -175,12 +177,16 @@ void *mem_map_shm(mem_key_t key, void *base, size_t len, size_t pgsize,
 		flags |= IPC_EXCL;
 
 	shmid = shmget(key, len, flags);
-	if (shmid == -1)
+	if (shmid == -1) {
+		log_info("shmget() failed with %d and errno(%d:%s)", shmid, errno,strerror(errno));
 		return MAP_FAILED;
+	}
 
 	addr = shmat(shmid, base, 0);
-	if (addr == MAP_FAILED)
+	if (addr == MAP_FAILED) {
+		log_info("shmat() failed with errno(%d:%s)", errno,strerror(errno));
 		return MAP_FAILED;
+	}
 
 	touch_mapping(addr, len, pgsize);
 	return addr;
