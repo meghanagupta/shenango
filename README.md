@@ -44,13 +44,13 @@ fake work (e.g., computing square roots for 10us), before responding.
 On the server:
 ```
 sudo ./iokerneld
-./apps/synthetic/target/release/synthetic 192.168.1.3:5000 --config server.config --mode spawner-server
+sudo ./apps/synthetic/target/release/synthetic 192.168.1.3:5000 --config server.config --mode spawner-server
 ```
 
 On the client:
 ```
 sudo ./iokerneld
-./apps/synthetic/target/release/synthetic 192.168.1.3:5000 --config client.config --mode runtime-client
+sudo ./apps/synthetic/target/release/synthetic 192.168.1.3:5000 --config client.config --mode runtime-client
 ```
 
 ## Supported Platforms
