@@ -123,16 +123,22 @@ int base_init_thread(void)
 	int ret;
 
 	ret = thread_init_perthread();
-	if (ret)
+	if (ret) {
+		log_err("thread_init_perthread() failed");
 		return ret;
+	}
 
 	ret = init_thread_internal();
-	if (ret)
+	if (ret) {
+		log_err("init_thread_internal() failed");
 		return ret;
+	}
 
 	ret = init_one_level(&init_thread_level);
-	if (ret)
+	if (ret) {
+		log_err("init_one_level() failed");
 		return ret;
+	}
 
 	thread_init_done = true;
 	return 0;

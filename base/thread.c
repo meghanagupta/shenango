@@ -37,9 +37,11 @@ static int thread_alloc_perthread(void)
 	if (!len)
 		return 0;
 
-	addr = mem_map_anom(NULL, len, PGSIZE_4KB, thread_numa_node);
-	if (addr == MAP_FAILED)
+	addr = mem_map_anom(NULL, len, PGSIZE_2MB, thread_numa_node);
+	if (addr == MAP_FAILED) {
+		log_err("mem_map_anom() failed in thread.c");
 		return -ENOMEM;
+	}
 
 	memset(addr, 0, len);
 	perthread_ptr = addr;
@@ -69,8 +71,10 @@ int thread_init_perthread(void)
 	thread_numa_node = 0;
 
 	ret = thread_alloc_perthread();
-	if (ret)
+	if (ret) {
+		log_err("thread_alloc_perthread() failed");
 		return ret;
+	}
 
 	log_info("thread: created thread %d", thread_id);
 	return 0;
